@@ -83,7 +83,7 @@ module Faraday
 
       def configure_ssl(http, ssl)
         http.use_ssl = true
-        http.verify_mode = ssl_verify_mode(ssl)
+        http.verify_mode = ssl_verify_mode(http, ssl)
 
         http.cert         = ssl[:client_cert]  if ssl[:client_cert]
         http.key          = ssl[:client_key]   if ssl[:client_key]
@@ -94,7 +94,7 @@ module Faraday
         http.ssl_version  = ssl[:version]      if ssl[:version]
       end
 
-      def ssl_verify_mode(ssl)
+      def ssl_verify_mode(http, ssl)
         ssl[:verify_mode] || begin
           if ssl.fetch(:verify, true)
             # Use the default cert store by default, i.e. system ca certs
