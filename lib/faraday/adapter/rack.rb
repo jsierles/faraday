@@ -18,14 +18,6 @@ module Faraday
     class Rack < Faraday::Adapter
       dependency 'rack/test'
 
-      begin
-        require 'system_timer' if RUBY_VERSION < '1.9'
-      rescue LoadError
-        warn "Faraday: you may want to install system_timer for reliable timeouts"
-      ensure
-        SystemTimer = Timeout unless defined? ::SystemTimer
-      end
-
       # not prefixed with "HTTP_"
       SPECIAL_HEADERS = %w[ CONTENT_LENGTH CONTENT_TYPE ]
 
@@ -50,7 +42,7 @@ module Faraday
 
         timeout  = env[:request][:timeout] || env[:request][:open_timeout]
         response = if timeout
-          SystemTimer.timeout(timeout) { execute_request(env, rack_env) }
+          Timer.timeout(timeout, Faraday::Error::TimeoutError) { execute_request(env, rack_env) }
         else
           execute_request(env, rack_env)
         end
